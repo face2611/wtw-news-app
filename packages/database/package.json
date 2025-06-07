@@ -1,0 +1,34 @@
+{
+  "name": "@meridian/database",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "author": {
+    "name": "Iliane Amadou",
+    "email": "mail@iliane.xyz",
+    "url": "https://iliane.xyz"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "migrate": "drizzle-kit migrate",
+    "generate": "drizzle-kit generate",
+    "studio": "drizzle-kit studio",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.41.0",
+    "postgres": "^3.4.5"
+  },
+  "devDependencies": {
+    "@meridian/typescript-config": "workspace:*",
+    "@types/node": "^22.13.14",
+    "drizzle-kit": "^0.30.6",
+    "typescript": "^5.8.2"
+  }
+}

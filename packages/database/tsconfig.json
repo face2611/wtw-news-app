@@ -1,0 +1,11 @@
+{
+  "extends": "@meridian/typescript-config/base.json",
+  "include": ["**/*.ts"],
+  "exclude": ["dist", "build", "node_modules"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}

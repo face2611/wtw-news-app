@@ -1,0 +1,395 @@
+@import 'tailwindcss';
+@import '@radix-ui/colors/gray.css';
+@import '@radix-ui/colors/blue.css';
+@import '@radix-ui/colors/red.css';
+@import '@radix-ui/colors/green.css';
+@import '@radix-ui/colors/slate.css';
+@import '@radix-ui/colors/tomato.css';
+@import '@radix-ui/colors/amber.css';
+@import '@radix-ui/colors/indigo.css';
+@import '@radix-ui/colors/orange.css';
+@import '@radix-ui/colors/gray-dark.css';
+@import '@radix-ui/colors/blue-dark.css';
+@import '@radix-ui/colors/red-dark.css';
+@import '@radix-ui/colors/green-dark.css';
+@import '@radix-ui/colors/slate-dark.css';
+@import '@radix-ui/colors/tomato-dark.css';
+@import '@radix-ui/colors/amber-dark.css';
+@import '@radix-ui/colors/indigo-dark.css';
+@import '@radix-ui/colors/orange-dark.css';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-gray1: var(--gray-1);
+  --color-gray2: var(--gray-2);
+  --color-gray3: var(--gray-3);
+  --color-gray4: var(--gray-4);
+  --color-gray5: var(--gray-5);
+  --color-gray6: var(--gray-6);
+  --color-gray7: var(--gray-7);
+  --color-gray8: var(--gray-8);
+  --color-gray9: var(--gray-9);
+  --color-gray10: var(--gray-10);
+  --color-gray11: var(--gray-11);
+  --color-gray12: var(--gray-12);
+  --color-slate1: var(--slate-1);
+  --color-slate2: var(--slate-2);
+  --color-slate3: var(--slate-3);
+  --color-slate4: var(--slate-4);
+  --color-slate5: var(--slate-5);
+  --color-slate6: var(--slate-6);
+  --color-slate7: var(--slate-7);
+  --color-slate8: var(--slate-8);
+  --color-slate9: var(--slate-9);
+  --color-slate10: var(--slate-10);
+  --color-slate11: var(--slate-11);
+  --color-slate12: var(--slate-12);
+  --color-blue1: var(--blue-1);
+  --color-blue2: var(--blue-2);
+  --color-blue3: var(--blue-3);
+  --color-blue4: var(--blue-4);
+  --color-blue5: var(--blue-5);
+  --color-blue6: var(--blue-6);
+  --color-blue7: var(--blue-7);
+  --color-blue8: var(--blue-8);
+  --color-blue9: var(--blue-9);
+  --color-blue10: var(--blue-10);
+  --color-blue11: var(--blue-11);
+  --color-blue12: var(--blue-12);
+  --color-red1: var(--red-1);
+  --color-red2: var(--red-2);
+  --color-red3: var(--red-3);
+  --color-red4: var(--red-4);
+  --color-red5: var(--red-5);
+  --color-red6: var(--red-6);
+  --color-red7: var(--red-7);
+  --color-red8: var(--red-8);
+  --color-red9: var(--red-9);
+  --color-red10: var(--red-10);
+  --color-red11: var(--red-11);
+  --color-red12: var(--red-12);
+  --color-green1: var(--green-1);
+  --color-green2: var(--green-2);
+  --color-green3: var(--green-3);
+  --color-green4: var(--green-4);
+  --color-green5: var(--green-5);
+  --color-green6: var(--green-6);
+  --color-green7: var(--green-7);
+  --color-green8: var(--green-8);
+  --color-green9: var(--green-9);
+  --color-green10: var(--green-10);
+  --color-green11: var(--green-11);
+  --color-green12: var(--green-12);
+  --color-tomato1: var(--tomato-1);
+  --color-tomato2: var(--tomato-2);
+  --color-tomato3: var(--tomato-3);
+  --color-tomato4: var(--tomato-4);
+  --color-tomato5: var(--tomato-5);
+  --color-tomato6: var(--tomato-6);
+  --color-tomato7: var(--tomato-7);
+  --color-tomato8: var(--tomato-8);
+  --color-tomato9: var(--tomato-9);
+  --color-tomato10: var(--tomato-10);
+  --color-tomato11: var(--tomato-11);
+  --color-tomato12: var(--tomato-12);
+  --color-amber1: var(--amber-1);
+  --color-amber2: var(--amber-2);
+  --color-amber3: var(--amber-3);
+  --color-amber4: var(--amber-4);
+  --color-amber5: var(--amber-5);
+  --color-amber6: var(--amber-6);
+  --color-amber7: var(--amber-7);
+  --color-amber8: var(--amber-8);
+  --color-amber9: var(--amber-9);
+  --color-amber10: var(--amber-10);
+  --color-amber11: var(--amber-11);
+  --color-amber12: var(--amber-12);
+  --color-indigo1: var(--indigo-1);
+  --color-indigo2: var(--indigo-2);
+  --color-indigo3: var(--indigo-3);
+  --color-indigo4: var(--indigo-4);
+  --color-indigo5: var(--indigo-5);
+  --color-indigo6: var(--indigo-6);
+  --color-indigo7: var(--indigo-7);
+  --color-indigo8: var(--indigo-8);
+  --color-indigo9: var(--indigo-9);
+  --color-indigo10: var(--indigo-10);
+  --color-indigo11: var(--indigo-11);
+  --color-indigo12: var(--indigo-12);
+  --color-orange1: var(--orange-1);
+  --color-orange2: var(--orange-2);
+  --color-orange3: var(--orange-3);
+  --color-orange4: var(--orange-4);
+  --color-orange5: var(--orange-5);
+  --color-orange6: var(--orange-6);
+  --color-orange7: var(--orange-7);
+  --color-orange8: var(--orange-8);
+  --color-orange9: var(--orange-9);
+  --color-orange10: var(--orange-10);
+  --color-orange11: var(--orange-11);
+  --color-orange12: var(--orange-12);
+
+  --container-180: 45rem;
+  --container-220: 55rem;
+
+  --padding-18: 4.5rem;
+
+  --transition-property-left: left;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-slate1 text-slate12 text-sm;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+}
+
+.dark body {
+  @apply bg-slate1 text-slate12;
+}
+
+/* prose styles adapted from your example */
+.prose {
+  @apply text-slate12 dark:text-slate12; /* Ensure text color applies in dark mode too */
+  max-width: 100%;
+  line-height: 1.8;
+
+  h1 {
+    @apply text-slate12 mb-2 text-4xl leading-normal font-bold;
+  }
+  h2 {
+    @apply text-slate12 mt-8 mb-2 text-3xl leading-normal font-semibold;
+  }
+  h3 {
+    @apply text-slate12 my-2 text-2xl leading-normal font-semibold;
+  }
+
+  h4 {
+    @apply text-slate12 my-2 text-base leading-normal font-semibold;
+  }
+
+  p {
+    @apply text-slate12 my-6 mt-4 text-base leading-relaxed;
+  }
+
+  a {
+    @apply text-gray11 decoration-gray6 underline-offset-4 transition-all hover:underline;
+  }
+
+  img {
+    @apply border-slate6 mx-auto my-8 w-full rounded-2xl border;
+  }
+
+  code {
+    @apply border-slate4 bg-slate3 text-slate11 mx-0.5 rounded-lg border p-0.5 px-1 text-base;
+  }
+
+  pre code {
+    /* Target code blocks within pre separately */
+    @apply border-none bg-transparent p-0; /* Remove individual code styling inside pre */
+  }
+
+  pre {
+    @apply bg-slate3 text-slate12 rounded-lg p-4 mb-6; /* Style the pre block */
+  }
+
+  .katex-html {
+    @apply hidden;
+  }
+
+  table {
+    @apply ring-slate4 my-6 w-full border-collapse overflow-hidden rounded-xl ring-1;
+
+    thead {
+      @apply border-slate4 bg-slate3 border-b text-left;
+    }
+
+    th,
+    td {
+      @apply border-slate4 border-b px-4 py-3;
+    }
+  }
+
+  blockquote {
+    @apply border-slate4 my-6 border-l-2 pl-4;
+
+    p {
+      @apply text-slate10 text-base leading-relaxed;
+    }
+  }
+
+  hr {
+    @apply border-slate4 mx-auto my-12 w-1/3;
+  }
+
+  ul {
+    @apply text-slate11 mt-2 mb-6 list-disc pl-4 text-base leading-relaxed;
+  }
+
+  .task-list-item {
+    @apply list-none;
+  }
+
+  ul li::marker {
+    @apply text-slate8;
+  }
+
+  ol {
+    @apply text-slate11 mt-2 mb-6 list-decimal pl-6 text-base leading-relaxed;
+  }
+
+  li {
+    @apply text-slate11 text-base leading-relaxed;
+  }
+
+  ol li::marker {
+    @apply text-slate8;
+  }
+
+  figcaption {
+    @apply text-slate8 -mt-4 text-center text-sm;
+  }
+
+  .expressive-code {
+    @apply mb-6;
+  }
+}
+
+/* Global link styling */
+a {
+  @apply text-gray11 decoration-gray6 underline-offset-4 transition-all hover:underline;
+}
+
+/* Example for the separator lines */
+.dark .bg-gray-300 {
+  @apply bg-slate6;
+}
+.border-gray-300 {
+  @apply border-slate6;
+}
+.dark .border-gray-300 {
+  @apply border-slate6;
+}
+
+/* Style the icons in the nav */
+.text-zinc-700 {
+  @apply text-slate11;
+}
+.dark .dark\:text-zinc-300 {
+  @apply text-slate11;
+}
+.hover\:text-zinc-900:hover {
+  @apply text-slate12;
+}
+.dark .dark\:hover\:text-zinc-600:hover {
+  @apply text-slate10;
+}
+
+/* Style the back to top button */
+.bg-gray-100 {
+  @apply bg-slate3;
+}
+.dark .dark\:bg-gray-900 {
+  @apply bg-slate3;
+}
+.text-black {
+  @apply text-slate12;
+}
+.dark .dark\:text-gray-100 {
+  @apply text-slate12;
+}
+.hover\:bg-gray-200:hover {
+  @apply bg-slate4;
+}
+.dark .dark\:hover\:bg-gray-800:hover {
+  @apply bg-slate4;
+}
+.border-gray-200 {
+  @apply border-slate6;
+}
+.dark .dark\:border-gray-950 {
+  @apply border-slate6;
+}
+
+/* Update stats text colors */
+.text-gray-600 {
+  @apply text-slate11;
+}
+.dark .dark\:text-gray-400 {
+  @apply text-slate11;
+}
+
+/* Update reading progress bar color */
+.bg-black {
+  @apply bg-slate12;
+}
+.dark .dark\:bg-white {
+  @apply bg-slate12;
+}
+
+/* Mobile TOC background */
+.bg-white\/95 {
+  @apply bg-slate2/95;
+}
+.dark .dark\:bg-gray-900\/95 {
+  @apply bg-slate2/95;
+}
+.text-gray-700 {
+  @apply text-slate12;
+}
+.dark .dark\:text-gray-300 {
+  @apply text-slate12;
+}
+
+/* Mobile TOC dropdown background */
+.bg-white {
+  @apply bg-slate2;
+}
+.dark .dark\:bg-gray-900 {
+  @apply bg-slate2;
+}
+
+/* Ensure prose dark mode inverts correctly with Radix */
+.dark .prose {
+  /* No need for prose-invert if we define dark styles directly */
+}
+
+/* Add overrides for TOC specific states */
+.hover\:bg-gray-50:hover {
+  @apply bg-slate2;
+}
+.dark .dark\:hover\:bg-gray-800:hover {
+  /* Already defined above, ensure it's slate4 or similar */
+  @apply bg-slate4;
+}
+
+.hover\:text-gray-900:hover {
+  /* Already defined above as text-slate12 */
+}
+.dark .dark\:hover\:text-gray-100:hover {
+  @apply text-slate12;
+}
+
+.text-gray-900 {
+  @apply text-slate12;
+}
+.dark .dark\:text-gray-100 {
+  /* Already defined above as text-slate12 */
+}
+
+.bg-gray-50 {
+  @apply bg-slate2;
+}
+.dark .dark\:bg-gray-800\/50 {
+  @apply bg-slate4/50; /* Use opacity */
+}
+
+.text-gray-500 {
+  @apply text-slate11;
+}
+/* dark .dark\:text-gray-400 already mapped to slate11 */

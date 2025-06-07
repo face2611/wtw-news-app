@@ -1,0 +1,42 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "wtw"
+main = "src/index.ts"
+compatibility_date = "2025-02-14"
+compatibility_flags = [ "nodejs_compat" ]
+
+[observability]
+enabled = true
+head_sampling_rate = 1 # optional. default = 1.
+
+[[workflows]]
+name = "meridian_scrape_rss_feed"
+binding = "SCRAPE_RSS_FEED"
+class_name = "ScrapeRssFeed"
+
+[[workflows]]
+name = "meridian_process_articles"
+binding = "PROCESS_ARTICLES"
+class_name = "ProcessArticles"
+
+[vars]
+CORS_ORIGIN = "http://127.0.0.1:3000"
+
+[triggers]
+# Schedule cron triggers:
+# - Every hour (at minute 4)
+# - At 07:08 (UTC) every day
+crons = [ "4 * * * *" ]
+
+[env.production]
+[[env.production.workflows]]
+name = "meridian-production-rss-scraper"
+binding = "SCRAPE_RSS_FEED"
+class_name = "ScrapeRssFeed"
+
+[[env.production.workflows]]
+name = "meridian-production-article-processor"
+binding = "PROCESS_ARTICLES"
+class_name = "ProcessArticles"
+
+[env.production.vars]
+CORS_ORIGIN = "https://watchingthe.world"

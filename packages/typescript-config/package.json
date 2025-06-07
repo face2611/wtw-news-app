@@ -1,0 +1,14 @@
+{
+  "name": "@meridian/typescript-config",
+  "version": "0.0.0",
+  "private": true,
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Iliane Amadou",
+    "email": "mail@iliane.xyz",
+    "url": "https://iliane.xyz"
+  }
+}

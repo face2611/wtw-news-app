@@ -1,0 +1,24 @@
+{
+  "files.associations": {
+    "wrangler.json": "jsonc"
+  },
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "prettier.documentSelectors": ["**/*.astro"],
+  "[astro]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  // hide git ignored files
+  "files.exclude": {
+    "**/*.turbo": true,
+    "**/.turbo": true,
+    "**/.venv": true,
+    "**/node_modules": true,
+    "**/.nuxt": true,
+    "**/.output": true,
+    "**/dist": true
+  },
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  }
+}
