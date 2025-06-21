@@ -1,5 +1,5 @@
 #:schema node_modules/wrangler/config-schema.json
-name = "wtw"
+name = "wtw" # Default worker name (used if no --env is specified or for default env)
 main = "src/index.ts"
 compatibility_date = "2025-02-14"
 compatibility_flags = [ "nodejs_compat" ]
@@ -8,29 +8,34 @@ compatibility_flags = [ "nodejs_compat" ]
 enabled = true
 head_sampling_rate = 1 # optional. default = 1.
 
+# Default workflow bindings (apply if not overridden by an environment)
 [[workflows]]
-name = "meridian_scrape_rss_feed"
-binding = "SCRAPE_RSS_FEED"
-class_name = "ScrapeRssFeed"
+name = "meridian_scrape_rss_feed" # This is a friendly name for the binding in code/dashboard
+binding = "SCRAPE_RSS_FEED"      # How you access it in code: env.SCRAPE_RSS_FEED
+class_name = "ScrapeRssFeed"     # The exported class name from your workflow file
 
 [[workflows]]
 name = "meridian_process_articles"
 binding = "PROCESS_ARTICLES"
 class_name = "ProcessArticles"
 
+# Default variables (apply if not overridden by an environment)
 [vars]
-CORS_ORIGIN = "http://127.0.0.1:3000"
+CORS_ORIGIN = "http://127.0.0.1:3000" # For local development
 
 [triggers]
 # Schedule cron triggers:
 # - Every hour (at minute 4)
-# - At 07:08 (UTC) every day
+# This applies to the deployed worker (respects the environment it's deployed to)
 crons = [ "4 * * * *" ]
 
+# --- Production Environment Configuration ---
 [env.production]
+name = "wtw-production" # <<<< EXPLICIT NAME FOR THE PRODUCTION WORKER
+
 [[env.production.workflows]]
-name = "meridian-production-rss-scraper"
-binding = "SCRAPE_RSS_FEED"
+name = "meridian-production-rss-scraper" # Name of the deployed workflow service instance
+binding = "SCRAPE_RSS_FEED"             # How it's bound in the production env
 class_name = "ScrapeRssFeed"
 
 [[env.production.workflows]]
@@ -39,4 +44,5 @@ binding = "PROCESS_ARTICLES"
 class_name = "ProcessArticles"
 
 [env.production.vars]
-CORS_ORIGIN = "https://watchingthe.world"
+CORS_ORIGIN = "https://watchingthe.world" # Your live frontend URL
+# Add other production-specific non-secret variables here if needed
