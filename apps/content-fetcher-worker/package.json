@@ -1,0 +1,17 @@
+{
+	"name": "content-fetcher-worker",
+	"version": "0.0.0",
+	"private": true,
+	"scripts": {
+		"deploy": "wrangler deploy",
+		"dev": "wrangler dev",
+		"start": "wrangler dev"
+	},
+	"devDependencies": {
+		"wrangler": "^4.37.0"
+	},
+	"dependencies": {
+		"drizzle-orm": "^0.41.0",
+		"postgres": "^3.4.5"
+	}
+}

@@ -1,0 +1,30 @@
+// C:\Users\phili\meridian\apps\gemini-processor-worker\wrangler.jsonc
+
+{
+  "name": "gemini-processor-worker", // This should match the name you gave the worker
+  "main": "src/index.js", // Verify this matches your worker's entry point (src/index.js)
+  "compatibility_date": "2024-01-01", // IMPORTANT: Update this to a recent date
+                                    // Use the date you saw during creation, or "2024-01-01" for now.
+  "compatibility_flags": [ // Enable Node.js compatibility for Drizzle/postgres
+    "nodejs_compat"
+  ],
+
+  // Queue Consumer: This worker will listen for messages from `article-gemini-process-queue`
+  "queues": {
+    "consumers": [
+      {
+        "queue": "article-gemini-process-queue"
+        // Optional but recommended: Configure a Dead Letter Queue (DLQ)
+        // "dead_letter_queue": "gemini-process-dlq" // You'd create this in the dashboard too.
+      }
+    ]
+    // No producers needed for this worker, as it's the final step in this chain
+  },
+
+  // Secret bindings: These names will be configured with values in the Cloudflare Dashboard
+  "secrets": [
+    "DATABASE_URL",
+    "GOOGLE_API_KEY",
+    "GOOGLE_BASE_URL"
+  ]
+}

@@ -1,3 +1,5 @@
+// C:\Users\phili\meridian\apps\scrapers\src\app.ts
+
 import { $articles, $sources, and, gte, lte, isNotNull, eq, not } from '@meridian/database';
 import { Env } from './index';
 import { getDb, hasValidAuthToken } from './lib/utils';
@@ -5,9 +7,12 @@ import { Hono } from 'hono';
 import { trimTrailingSlash } from 'hono/trailing-slash';
 import openGraph from './routers/openGraph.router';
 import reportsRouter from './routers/reports.router';
-import { startRssFeedScraperWorkflow } from './workflows/rssFeed.workflow';
-import { getRssFeedWithFetch } from './lib/puppeteer';
-import { parseRSSFeed } from './lib/parsers';
+// REMOVED: import { startRssFeedScraperWorkflow } from './workflows/rssFeed.workflow';
+// NEW: Import the refactored logic function directly
+import { runScrapeRssFeedLogic } from './logic/rssFeed.logic'; // <<<< NEW IMPORT
+// We don't need getRssFeedWithFetch or parseRSSFeed here, as they are used internally by runScrapeRssFeedLogic
+// import { getRssFeedWithFetch } from './lib/puppeteer';
+// import { parseRSSFeed } from './lib/parsers';
 
 export type HonoEnv = { Bindings: Env };
 
@@ -93,12 +98,17 @@ const app = new Hono<HonoEnv>()
       return c.json({ error: 'Unauthorized' }, 401);
     }
 
-    const res = await startRssFeedScraperWorkflow(c.env, { force: true });
-    if (res.isErr()) {
-      return c.json({ error: res.error }, 500);
+    // NEW: Use try/catch for direct function call, no longer using ResultAsync
+    try {
+      console.log('API Trigger: Directly running ScrapeRssFeed logic...'); // <<<< NEW LOG
+      // Call the new runScrapeRssFeedLogic function directly, passing all required arguments
+      await runScrapeRssFeedLogic(c.env, c.executionCtx, { force: true }); // <<<< CHANGED CALL
+      console.log('API Trigger: ScrapeRssFeed logic finished.'); // <<<< NEW LOG
+      return c.json({ success: true });
+    } catch (error: any) {
+      console.error('API Trigger: Error running ScrapeRssFeed logic:', error); // <<<< NEW LOG
+      return c.json({ error: error.message || 'Internal Server Error' }, 500);
     }
-
-    return c.json({ success: true });
   });
 
 export default app;

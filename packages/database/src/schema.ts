@@ -1,3 +1,5 @@
+// C:\Users\phili\meridian\packages\database\src\schema.ts
+
 import { sql } from 'drizzle-orm';
 import { boolean, integer, jsonb, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
 
@@ -24,6 +26,12 @@ export const $articles = pgTable('articles', {
   publishDate: timestamp('publish_date', { mode: 'date' }),
 
   content: text('content'),
+  // --- NEW COLUMNS START ---
+  processing_status: text('processing_status'), // Added
+  run_id: text('run_id'), // <<<< NEW: Add this line
+  contentFetchedAt: timestamp('content_fetched_at', { mode: 'date' }), // Added
+  geminiProcessedAt: timestamp('gemini_processed_at', { mode: 'date' }), // Added
+  // --- NEW COLUMNS END ---
   language: text('language'),
   location: text('location'),
   completeness: text('completeness'),
@@ -35,7 +43,7 @@ export const $articles = pgTable('articles', {
     .references(() => $sources.id)
     .notNull(),
 
-  processedAt: timestamp('processed_at', { mode: 'date' }),
+  processedAt: timestamp('processed_at', { mode: 'date' }), // This might be redundant with geminiProcessedAt
   createdAt: timestamp('created_at', { mode: 'date' }).default(sql`CURRENT_TIMESTAMP`),
 });
 

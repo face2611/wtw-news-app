@@ -48,8 +48,9 @@ class Event(BaseModel):
 
 def get_events(date: str = None):
     #url = f"https://meridian-production.alceos.workers.dev/events"
-    url = f"http://localhost:8787/events"
-
+    #url = f"http://localhost:8787/events"
+    url = f"https://wtw-production.philip-j-ireland.workers.dev/events" # PRODUCTION URL
+    
     if date:
         url += f"?date={date}"
 

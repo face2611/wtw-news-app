@@ -1,0 +1,169 @@
+name,category,url
+BBC News Feed,General News,https://feeds.bbci.co.uk/news/world/rss.xml
+NBC News,World News,http://feeds.nbcnews.com/nbcnews/public/new
+CNN World RSS Feed,World News,http://rss.cnn.com/rss/edition_world.rss
+Al Jazeera RSS Feed,World News,https://aljazeera.com/xml/rss/all.xml
+France 24 Feed,World News,https://france24.com/en/rss
+Yahoo News World Feed,World News,https://yahoo.com/news/rss/world
+Sky News World Feed,World News,https://feeds.skynews.com/feeds/rss/world.xml
+Russia Today World News Feed,World News,https://rt.com/rss/news
+Sky News UK,General,http://feeds.skynews.com/feeds/rss/uk.xml
+Sky News US,General,http://feeds.skynews.com/feeds/rss/us.xml
+Sky News Business,Business,http://feeds.skynews.com/feeds/rss/business.xml
+Sky News Technology,Technology,http://feeds.skynews.com/feeds/rss/technology.xml
+Euronews,World,https://www.euronews.com/rss
+Sky News Strange,General,http://feeds.skynews.com/feeds/rss/strange.xml
+NYT World,World,https://rss.nytimes.com/services/xml/rss/nyt/World.xml
+NYT Europe,Europe,https://rss.nytimes.com/services/xml/rss/nyt/Europe.xml
+NYT US,General,https://rss.nytimes.com/services/xml/rss/nyt/US.xml
+NYT Business,Business,https://rss.nytimes.com/services/xml/rss/nyt/Business.xml
+NYT Energy Environment,Environment,https://rss.nytimes.com/services/xml/rss/nyt/EnergyEnvironment.xml
+NYT Economy,Business,https://rss.nytimes.com/services/xml/rss/nyt/Economy.xml
+NYT Technology,Technology,https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml
+NYT Science,Science,https://rss.nytimes.com/services/xml/rss/nyt/Science.xml
+NYT Climate,Climate,https://rss.nytimes.com/services/xml/rss/nyt/Climate.xml
+NYT Space,Space,https://rss.nytimes.com/services/xml/rss/nyt/Space.xml
+NYT Health,Health,https://rss.nytimes.com/services/xml/rss/nyt/Health.xml
+Huffington Post UK,General,https://www.huffingtonpost.co.uk/feeds/index.xml
+Daily Record News UK,News,https://www.dailyrecord.co.uk/news/?service=rss
+Daily Mirror UK,General,https://www.mirror.co.uk/?service=rss
+Evening Standard UK,General,https://www.standard.co.uk/rss
+The Conversation UK,General,https://theconversation.com/uk/articles.atom
+Manchester Evening News UK,General,https://www.manchestereveningnews.co.uk/?service=rss
+Metro UK,General,https://metro.co.uk/feed/
+London Journal,General,https://londonjournal.co.uk/feed/
+The Guardian UK Environment,Environment,https://www.theguardian.com/uk/environment/rss
+The Guardian Europe News,Europe,https://www.theguardian.com/world/europe-news/rss
+The Guardian Science,Science,https://www.theguardian.com/science/rss
+The Guardian UK Technology,Technology,https://www.theguardian.com/uk/technology/rss
+The Guardian US News,General,https://www.theguardian.com/us-news/rss
+The Guardian UK News,General,https://www.theguardian.com/uk-news/rss
+The Guardian World,World,https://www.theguardian.com/world/rss
+UN News All,General,https://news.un.org/feed/subscribe/en/news/all/rss.xml
+UN News Human Rights,Human Rights,https://news.un.org/feed/subscribe/en/news/topic/human-rights/feed/rss.xml
+Google News (Generic),General,http://news.google.com/?output=rss
+GB News,News,https://www.gbnews.com/feeds/news.rss
+ABC News US Headlines,General,https://feeds.abcnews.com/abcnews/usheadlines
+ABC News International Headlines,General,https://feeds.abcnews.com/abcnews/internationalheadlines
+ABC News Politics Headlines,Politics,https://feeds.abcnews.com/abcnews/politicsheadlines
+ABC News Money Headlines,Business,https://feeds.abcnews.com/abcnews/moneyheadlines
+ABC News Technology Headlines,Technology,https://feeds.abcnews.com/abcnews/technologyheadlines
+ABC News Health Headlines,Health,https://feeds.abcnews.com/abcnews/healthheadlines
+US - general,general,http://rss.cnn.com/rss/cnn_topstories.rss
+US - general,general,http://www.cbsnews.com/latest/rss/main
+US - general,general,http://rss.csmonitor.com/feeds/usa
+US - general,general,http://feeds.nbcnews.com/feeds/topstories
+US - general,general,http://feeds.nbcnews.com/feeds/worldnews
+US - general,general,http://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml
+US - general,general,http://rss.news.yahoo.com/rss/world
+US - general,general,http://www.newsweek.com/rss
+US - general,general,http://www.theguardian.com/world/usa/rss
+US - general,general,http://www.newyorker.com/feed/news
+US - general,general,http://www.npr.org/rss/rss.php?id=1003
+US - general,general,http://www.npr.org/rss/rss.php?id=1004
+US - general,general,http://www.latimes.com/world/rss2.0.xml
+US - general,general,http://feeds.foxnews.com/foxnews/latest?format=xml
+US - politics,politics,http://rss.nytimes.com/services/xml/rss/nyt/Politics.xml
+US - politics,politics,http://rss.nytimes.com/services/xml/rss/nyt/Upshot.xml
+US - politics,politics,http://thecaucus.blogs.nytimes.com/feed/
+US - politics,politics,http://www.reddit.com/r/politics/.rss
+US - politics,politics,http://feeds.dailykos.com/dailykos/index.xml
+US - politics,politics,http://www.npr.org/rss/rss.php?id=1014
+US - politics,politics,http://www.thenation.com/rss/articles
+US - politics,politics,http://dailycaller.com/section/politics/feed/
+US - politics,politics,https://www.nationalreview.com/rss.xml
+US - politics,politics,http://feeds.slate.com/slate-101526
+US - politics,politics,http://www.redstate.com/feed/
+US - politics,politics,http://twitchy.com/category/us-politics/feed/
+US - business,business,http://www.nytimes.com/services/xml/rss/nyt/Business.xml
+US - business,business,http://rss.nytimes.com/services/xml/rss/nyt/Business.xml
+US - business,business,http://feeds.harvardbusiness.org/harvardbusiness?format=xml
+US - health,health,http://www.nytimes.com/services/xml/rss/nyt/Health.xml
+US - health,health,http://feeds.bbci.co.uk/news/health/rss.xml?edition=us
+US - health,health,http://feeds.abcnews.com/abcnews/healthheadlines
+US - health,health,http://feeds.nbcnews.com/feeds/health
+US - health,health,http://www.theguardian.com/society/health/rss
+US - health,health,http://feeds.newscientist.com/health
+US - health,health,http://time.com/health/feed/
+US - health,health,http://khn.org/feed/
+US - health,health,http://www.medpagetoday.com/rss/Headlines.xml
+US - health,health,http://www.medscape.com/cx/rssfeeds/2700.xml
+US - health,health,http://www.npr.org/rss/rss.php?id=1128
+US - science,science,http://rss.nytimes.com/services/xml/rss/nyt/Science.xml
+US - science,science,http://rss.nytimes.com/services/xml/rss/nyt/Space.xml
+US - science,science,http://feeds.nbcnews.com/feeds/science
+US - science,science,http://rss.sciam.com/ScientificAmerican-Global
+US - science,science,http://feeds.feedburner.com/BreakingScienceNews?format=xml
+US - science,science,http://www.latimes.com/health/rss2.0.xml
+US - science,science,http://www.chron.com/rss/feed/AP-Technology-and-Science-266.php
+US - science,science,http://feeds.washingtonpost.com/rss/rss_speaking-of-science
+US - science,science,http://www.sciencemag.org/rss/current.xml
+US - science,science,http://feeds.feedburner.com/DiscoverTopStories
+US - science,science,http://feeds.bbci.co.uk/news/science_and_environment/rss.xml
+US - science,science,http://www.nasa.gov/rss/dyn/breaking_news.rss
+US - science,science,http://www.livescience.com/home/feed/site.xml
+US - science,science,http://feeds.nature.com/nbt/rss/current
+US - science,science,http://www.popsci.com/rss.xml
+US - science,science,http://feeds.arstechnica.com/arstechnica/science
+US - science,science,http://www.smithsonianmag.com/rss/science-nature/
+US - science,science,http://feeds.newscientist.com/science-news
+US - science,science,http://feeds.newscientist.com/space
+US - science,science,http://www.pnas.org/rss/Feature_Article.xml
+US - science,science,http://feeds2.feedburner.com/time/scienceandhealth
+US - science,science,http://phys.org/rss-feed/
+US - science,science,http://grist.org/feed/
+US - science,science,http://www.theguardian.com/science/rss
+US - science,science,http://www.theguardian.com/us/environment/rss
+US - tech,tech,http://rss.nytimes.com/services/xml/rss/nyt/Technology.xml
+US - tech,tech,http://feeds.foxnews.com/foxnews/tech
+US - tech,tech,http://www.cnet.com/rss/news/
+US - tech,tech,http://www.npr.org/rss/rss.php?id=1019
+US - tech,tech,http://www.latimes.com/business/technology/rss2.0.xml
+US - tech,tech,http://feeds.abcnews.com/abcnews/technologyheadlines
+US - tech,tech,http://feeds.webservice.techradar.com/us/rss/new
+US - tech,tech,http://time.com/tech/feed/
+US - tech,tech,http://techreport.com/news.rss
+US - tech,tech,http://www.techspot.com/backend.xml
+US - tech,tech,http://feeds.arstechnica.com/arstechnica/technology-lab
+US - tech,tech,http://feeds.newscientist.com/tech
+US - tech,tech,http://www.technologyreview.com/stream/rss/
+US - tech,tech,http://www.techinsider.io/rss
+GB - general,general,http://www.theguardian.com/world/rss
+GB - general,general,http://www.theweek.co.uk/feeds/all
+GB - general,general,http://feeds.bbci.co.uk/news/world/rss.xml
+GB - general,general,http://feeds.bbci.co.uk/news/uk/rss.xml
+GB - general,general,http://www.theguardian.com/uk/rss
+GB - general,general,http://www.ft.com/rss/world/uk
+GB - general,general,http://www.standard.co.uk/news/rss
+GB - general,general,http://www.dailymail.co.uk/news/index.rss
+GB - general,general,http://feeds.feedburner.com/daily-express-uk-news
+GB - general,general,http://www.manchestereveningnews.co.uk/rss.xml
+GB - politics,politics,http://www.ft.com/rss/world/uk/politics
+GB - business,business,http://feeds.feedburner.com/daily-express-finance-news
+GB - business,business,http://feeds.bbci.co.uk/news/business/rss.xml
+GB - business,business,http://feeds.theguardian.com/theguardian/uk/business/rss
+GB - business,business,http://www.ibtimes.co.uk/rss/uk
+GB - health,health,http://feeds.bbci.co.uk/news/health/rss.xml
+GB - health,health,http://www.express.co.uk/posts/rss/11/health
+GB - health,health,http://www.dailymail.co.uk/health/index.rss
+GB - health,health,http://www.ok.co.uk/rss/health
+GB - science,science,http://www.theguardian.com/uk/environment/rss
+GB - science,science,https://www.newscientist.com/feed/home
+GB - science,science,http://feeds.theguardian.com/theguardian/science/rss
+GB - science,science,http://www.independent.co.uk/news/science/rss
+GB - science,science,http://www.theregister.co.uk/science/headlines.atom
+GB - science,science,http://www.dailymail.co.uk/sciencetech/articles.rss
+GB - science,science,http://www.ibtimes.co.uk/rss/science
+GB - tech,tech,http://www.huffingtonpost.co.uk/feeds/verticals/uk-tech/index.xml
+GB - tech,tech,http://www.techrepublic.com/rssfeeds/blog/european-technology/
+GB - tech,tech,http://feeds.theguardian.com/theguardian/technology/rss
+GB - tech,tech,http://feeds.bbci.co.uk/news/technology/rss.xml#
+GB - tech,tech,http://feeds.webservice.techradar.com/rss/new
+UN Press Releases,World News,https://www.ungeneva.org/en/news-media/press-releases-list/rss.xml
+UN All Press Items,World News,https://www.ungeneva.org/en/news-media/press-items-list/rss.xml
+UN Bi Weekly Briefings,World News,https://www.ungeneva.org/en/news-media/briefings-list/rss.xml
+USGS News,Earthquakes,https://www.usgs.gov/news/all/feed
+UN All Press Items,Science,https://www.livescience.com/feeds/all
+EIN Natural Disasters,World News,https://naturaldisasters.einnews.com/rss/5DCHg6ojdayQpKlr
+South China Post,World,https://www.scmp.com/rss/5/feed
+South China Post,General News,https://www.scmp.com/rss/91/feed

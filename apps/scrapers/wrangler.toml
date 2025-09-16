@@ -1,18 +1,18 @@
 #:schema node_modules/wrangler/config-schema.json
-name = "wtw" # Default worker name (used if no --env is specified or for default env)
+name = "wtw-production" # Default worker name (used if no --env is specified or for default env)
 main = "src/index.ts"
-compatibility_date = "2025-02-14"
+compatibility_date = "2024-01-01"
 compatibility_flags = [ "nodejs_compat" ]
 
 [observability]
 enabled = true
 head_sampling_rate = 1 # optional. default = 1.
 
-# Default workflow bindings (apply if not overridden by an environment)
-[[workflows]]
-name = "meridian_scrape_rss_feed" # This is a friendly name for the binding in code/dashboard
-binding = "SCRAPE_RSS_FEED"      # How you access it in code: env.SCRAPE_RSS_FEED
-class_name = "ScrapeRssFeed"     # The exported class name from your workflow file
+## Default workflow bindings (apply if not overridden by an environment)
+#[[workflows]]
+#name = "meridian_scrape_rss_feed" # This is a friendly name for the binding in code/dashboard
+#binding = "SCRAPE_RSS_FEED"      # How you access it in code: env.SCRAPE_RSS_FEED
+#class_name = "ScrapeRssFeed"     # The exported class name from your workflow file
 
 [[workflows]]
 name = "meridian_process_articles"
@@ -46,3 +46,14 @@ class_name = "ProcessArticles"
 [env.production.vars]
 CORS_ORIGIN = "https://watchingthe.world" # Your live frontend URL
 # Add other production-specific non-secret variables here if needed
+
+[[queues.producers]]
+binding = "ARTICLE_CONTENT_FETCH_QUEUE" # This is the variable name you'll use in your worker code
+queue = "article-content-fetch-queue"  # This is the actual queue name you created
+
+# wrangler.toml (wrangler v3.88.0^)
+[observability.logs]
+enabled = true
+
+
+
