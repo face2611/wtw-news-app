@@ -1,15 +1,31 @@
 // C:\Users\phili\meridian\apps\content-fetcher-worker\src\index.js
 
-// --- Drizzle DB Client Setup (SELF-CONTAINED FOR DEBUGGING) ---
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
-// REMOVED: import * as importedSchema from '../../../packages/database/src/schema'; // <<<< REMOVED - Using inline schema
-import { pgTable, serial, text, timestamp, integer, boolean } from 'drizzle-orm/pg-core'; // <<<< Import Drizzle types for INLINE SCHEMA
-import { sql } from 'drizzle-orm'; // <<<< CORRECTED IMPORT FOR SQL
-import { eq, inArray } from 'drizzle-orm'; // Keep individual Drizzle ops
+// --- Drizzle DB Client Setup (SELF-CONTAINED) ---
+import { drizzle } from 'drizzle-orm/neon-serverless';
+import { Pool, neon, neonConfig } from '@neondatabase/serverless';
+import { pgTable, serial, text, timestamp, integer, boolean } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
+import { eq, inArray, asc, desc } from 'drizzle-orm';
 
-// --- NEW: Define schema INLINE for this worker for maximum isolation ---
-// This is a direct copy of your relevant schema
+// Configure Neon HTTP client for Cloudflare Workers
+neonConfig.fetch = (...args) => {
+  return fetch(...args);
+};
+
+// --- Helper function for timestamp formatting ---
+function formatTimestampForPgWithoutTimeZone(date) {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    const seconds = String(d.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+// --- End Helper ---
+
+// --- Define schema INLINE for this worker ---
 export const $sources = pgTable('sources', {
   id: serial('id').primaryKey(),
   url: text('url').notNull().unique(),
@@ -25,7 +41,7 @@ export const $articles = pgTable('articles', {
   title: text('title').notNull(),
   url: text('url').notNull().unique(),
   publishDate: timestamp('publish_date', { mode: 'date' }),
-  content: text('content'), // This is the problematic column
+  content: text('content'),
   processing_status: text('processing_status').default('Scraped'),
   contentFetchedAt: timestamp('content_fetched_at', { mode: 'date' }),
   geminiProcessedAt: timestamp('gemini_processed_at', { mode: 'date' }),
@@ -42,21 +58,20 @@ export const $articles = pgTable('articles', {
   processedAt: timestamp('processed_at', { mode: 'date' }),
   createdAt: timestamp('created_at', { mode: 'date' }).default(sql`CURRENT_TIMESTAMP`),
 });
-// --- END NEW INLINE SCHEMA ---
+// --- End INLINE SCHEMA ---
 
 
 function getDb(databaseUrl) {
-    const queryClient = postgres(databaseUrl);
-    // <<<< NOW USE THE INLINE SCHEMA DEFINED ABOVE ($articles, $sources)
+    const queryClient = postgres(databaseUrl); // This needs 'postgres' import still for `pg-core` in Drizzle
     return drizzle(queryClient, { schema: {
-        articles: $articles, // Use the directly defined $articles
-        sources: $sources,   // Use the directly defined $sources
+        articles: $articles,
+        sources: $sources,
     }});
 }
 // --- End Drizzle DB Client Setup ---
 
 
-// --- NEW: SIMULATED fetchArticleContentWithBrowser (no change needed here) ---
+// --- SIMULATED fetchArticleContentWithBrowser (THIS IS THE FUNCTION THAT WORKS WITH SIMULATED DATA) ---
 async function fetchArticleContentWithBrowser(url, env, currentArticleId, currentRunId) {
     console.error(`[ContentFetcher] DEBUG: Article ID ${currentArticleId}, Run ID ${currentRunId}: SIMULATING Browser Rendering API call for ${url}`);
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -82,7 +97,6 @@ export default {
             try {
                 console.error(`[ContentFetcher] DEBUG: Processing article ID ${articleId}, Run ID ${currentRunId}`);
 
-                // The check for db.query.articles is still useful
                 if (!db.query || !db.query.articles) {
                     throw new Error(`[ContentFetcher] CRITICAL ERROR: db.query.articles is undefined before findFirst! Run ID: ${currentRunId}`);
                 }
@@ -102,24 +116,24 @@ export default {
                 if (fullContent) { // This will now always be true due to simulation
                     console.error(`[ContentFetcher] DEBUG: Article ID ${articleId}, Run ID ${currentRunId}: Content fetched (simulated). Attempting DB update.`);
                     
-                    // --- NEW: Separate update for 'content' using raw SQL ---
                     try {
-                        // Update 'content', 'content_fetched_at', and 'processing_status' using raw SQL
+                        const now = new Date();
+                        const formattedTimestamp = formatTimestampForPgWithoutTimeZone(now);
+
                         await db.execute(sql`
                             UPDATE ${$articles}
                             SET 
-                                content = ${fullContent}::text,
-                                content_fetched_at = ${new Date().toISOString()}::timestamp without time zone,
-                                processing_status = ${'Content_Fetched'}::text
+                                content = ${fullContent},
+                                content_fetched_at = ${formattedTimestamp},
+                                processing_status = ${'Content_Fetched'}
                             WHERE id = ${articleId}
                         `);
                         console.error(`[ContentFetcher] DEBUG: Article ID ${articleId}, Run ID ${currentRunId}: Raw SQL update for content successful.`);
                     } catch (rawSqlError) {
                         throw new Error(`[ContentFetcher] CRITICAL ERROR: Raw SQL update for content failed! ${rawSqlError?.message || String(rawSqlError)}. Article ID: ${articleId}, Run ID: ${currentRunId}`);
                     }
-                    // --- END NEW RAW SQL UPDATE ---
 
-                    console.error(`[ContentFetcher] DEBUG: Article ID ${articleId}, Run ID ${currentRunId}: DB updated (partially with raw SQL). Publishing to Gemini queue.`);
+                    console.error(`[ContentFetcher] DEBUG: Article ID ${articleId}, Run ID ${currentRunId}: DB updated. Publishing to Gemini queue.`);
                     await env.ARTICLE_GEMINI_PROCESS_QUEUE.send({ articleId, runId: currentRunId });
                     message.ack();
                 } else {

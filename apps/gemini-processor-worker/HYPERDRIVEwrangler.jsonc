@@ -1,0 +1,33 @@
+{
+  "name": "gemini-processor-worker",
+  "main": "dist/index.js", // <<<< IMPORTANT: Now points to the Webpack output
+  "compatibility_date": "2024-01-01",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "build": { // <<<< NEW: This tells wrangler to use your webpack setup
+    "command": "webpack --config webpack.config.js --mode=production", // Explicitly run webpack with your config
+    "watch": "webpack --config webpack.config.js --mode=development --watch", // For local dev
+    "upload": {
+      "format": "modules", // <<<< IMPORTANT: Changed to 'modules' for ES module output from Webpack 5
+      "main": "dist/index.js"
+    }
+  },
+  "queues": {
+    "consumers": [
+      {
+        "queue": "article-gemini-process-queue"
+      }
+    ]
+  },
+  "secrets": [
+    "GOOGLE_API_KEY",
+    "GOOGLE_BASE_URL"
+  ],
+  "hyperdrive": [
+    {
+      "binding": "DATABASE_HYPERDRIVE",
+      "id": "77836d023806461995f718eaeb6b3336" // <<<< YOUR GEMINI HYPERDRIVE ID
+    }
+  ]
+}

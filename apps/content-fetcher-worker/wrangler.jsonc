@@ -1,18 +1,15 @@
-// C:\Users\phili\meridian\apps\content-fetcher-worker\wrangler.jsonc
-
 {
   "name": "content-fetcher-worker",
-  "main": "src/index.js",
-  "compatibility_date": "2024-01-01", // Keep this date, or update to a more recent one if wrangler suggests
-  "compatibility_flags": [ // <--- NEW: Add this section
+  "main": "src/index.js", // <<<< CHANGED: Points directly to source file
+  "compatibility_date": "2024-01-01",
+  "compatibility_flags": [
     "nodejs_compat"
   ],
-
+  // REMOVED: "build": { ... } section
   "queues": {
     "consumers": [
       {
         "queue": "article-content-fetch-queue"
-        // "dead_letter_queue": "content-fetch-dlq" // Keep commented or create if needed
       }
     ],
     "producers": [
@@ -21,10 +18,11 @@
         "queue": "article-gemini-process-queue"
       }
     ]
-  }
-  // <<<< REMOVED: The entire "secrets" array from here
-  // Secrets are managed in the Cloudflare Dashboard for these specific bindings.
-  // We just declare the environment variables in the code's Env interface.
-
-  
+  },
+  "secrets": [
+    "DATABASE_URL", // <<<< ADDED: For direct DB connection
+    "CLOUDFLARE_ACCOUNT_ID",
+    "CLOUDFLARE_BROWSER_RENDERING_API_TOKEN"
+  ]
+  // REMOVED: "hyperdrive": [ ... ] section
 }

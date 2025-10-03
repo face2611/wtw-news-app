@@ -2,13 +2,16 @@
 // --- This code uses the REAL Cloudflare Browser Rendering API ---
 
 // --- Drizzle DB Client Setup (SELF-CONTAINED) ---
-import { drizzle } from 'drizzle-orm/postgres-js'; // Use postgres-js adapter as in wtw-production
-import postgres from 'postgres'; // Use postgres client as in wtw-production
+import { drizzle } from 'drizzle-orm/neon-serverless';
+import { Pool, neon, neonConfig } from '@neondatabase/serverless';
 import { pgTable, serial, text, timestamp, integer, boolean } from 'drizzle-orm/pg-core';
-import { sql } from 'drizzle-orm'; // Import sql for default values
+import { sql } from 'drizzle-orm';
 import { eq, inArray, asc, desc } from 'drizzle-orm'; // Include all necessary Drizzle ops
 
-// REMOVED: Neon HTTP client config (not needed for postgres-js client)
+// Configure Neon HTTP client for Cloudflare Workers
+neonConfig.fetch = (...args) => {
+  return fetch(...args);
+};
 
 // --- Helper function for timestamp formatting ---
 function formatTimestampForPgWithoutTimeZone(date) {
@@ -54,22 +57,17 @@ export const $articles = pgTable('articles', {
     .references(() => $sources.id)
     .notNull(),
   processedAt: timestamp('processed_at', { mode: 'date' }),
-  createdAt: timestamp('created_at', { mode: 'date' }).default(sql`CURRENT_TIMESTAMP`), // <<<< CORRECTED: Added backticks for template literal
+  createdAt: timestamp('created_at', { mode: 'date' }).default(sql`CURRENT_TIMESTAMP`),
 });
 // --- End INLINE SCHEMA ---
 
 
-let dbClient = null; // Declare dbClient here for lazy init
-
-function getDb(databaseUrl) { // This accepts the DATABASE_URL secret (a string)
-    if (!dbClient) {
-        const queryClient = postgres(databaseUrl); // Use postgres client with string
-        dbClient = drizzle(queryClient, { schema: {
-            articles: $articles,
-            sources: $sources,
-        }});
-    }
-    return dbClient;
+function getDb(databaseUrl) {
+    const queryClient = postgres(databaseUrl);
+    return drizzle(queryClient, { schema: {
+        articles: $articles,
+        sources: $sources,
+    }});
 }
 // --- End Drizzle DB Client Setup ---
 
@@ -117,14 +115,10 @@ async function fetchArticleContentWithBrowser(url, env, currentArticleId, curren
 export default {
     async queue(
         batch,
-        env, // env now expects env.DATABASE_URL
+        env,
         ctx
     ) {
-        // CRITICAL: Ensure DATABASE_URL binding exists before attempting to use it
-        if (!env.DATABASE_URL) { // <<<< CHANGED: Check for DATABASE_URL
-            throw new Error(`[ContentFetcher] ERROR: DATABASE_URL binding is missing or undefined! Run ID: (batch messages below)`);
-        }
-        const db = getDb(env.DATABASE_URL); // <<<< CHANGED: Pass DATABASE_URL
+        const db = getDb(env.DATABASE_URL); // Call getDb here, inside the handler
 
         for (const message of batch.messages) {
             const { articleId, runId: receivedRunId } = message.body;
