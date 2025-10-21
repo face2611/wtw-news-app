@@ -1,78 +1,50 @@
-// C:\Users\phili\meridian\apps\scrapers\src\app.ts
+// Reverting to the clean version without the /briefs endpoint.
 
-import { $articles, $sources, and, gte, lte, isNotNull, eq, not } from '@meridian/database';
-import { Env } from './index';
-import { getDb, hasValidAuthToken } from './lib/utils';
 import { Hono } from 'hono';
 import { trimTrailingSlash } from 'hono/trailing-slash';
+import { Env } from './index';
+import { getDb, hasValidAuthToken } from './lib/utils';
 import openGraph from './routers/openGraph.router';
 import reportsRouter from './routers/reports.router';
-import briefsRouter from './routers/briefs.router'; 
-// REMOVED: import { startRssFeedScraperWorkflow } from './workflows/rssFeed.workflow';
-// NEW: Import the refactored logic function directly
-import { runScrapeRssFeedLogic } from './logic/rssFeed.logic'; // <<<< NEW IMPORT
-// We don't need getRssFeedWithFetch or parseRSSFeed here, as they are used internally by runScrapeRssFeedLogic
-// import { getRssFeedWithFetch } from './lib/puppeteer';
-// import { parseRSSFeed } from './lib/parsers';
+import { runScrapeRssFeedLogic } from './logic/rssFeed.logic';
+
+// Imports for the /events endpoint
+import { and, gte, lte, isNotNull, eq, not } from 'drizzle-orm';
+import { $sources, $articles } from '@meridian/database';
 
 export type HonoEnv = { Bindings: Env };
 
 const app = new Hono<HonoEnv>()
   .use(trimTrailingSlash())
-  .get('/favicon.ico', async c => c.notFound()) // disable favicon
-  .route('/briefs', briefsRouter)
+  .get('/favicon.ico', async c => c.notFound())
+  // The broken /briefs endpoint has been removed.
   .route('/reports', reportsRouter)
+  .use('/reports/*', async (c, next) => {
+      console.log(`[wtw-production] DEBUG: Incoming request to /reports path: ${c.req.method} ${c.req.url}`);
+      await next();
+  })
   .route('/openGraph', openGraph)
   .get('/ping', async c => c.json({ pong: true }))
   .get('/events', async c => {
-    // require bearer auth token
     const hasValidToken = hasValidAuthToken(c);
     if (!hasValidToken) {
       return c.json({ error: 'Unauthorized' }, 401);
     }
-
-    // Check if a date query parameter was provided in yyyy-mm-dd format
     const dateParam = c.req.query('date');
-
     let endDate: Date;
     if (dateParam) {
-      // Parse the date parameter explicitly with UTC
-      // Append T07:00:00Z to ensure it's 7am UTC
       endDate = new Date(`${dateParam}T07:00:00Z`);
-      // Check if date is valid
       if (isNaN(endDate.getTime())) {
         return c.json({ error: 'Invalid date format. Please use yyyy-mm-dd' }, 400);
       }
     } else {
-      // Use current date if no date parameter was provided
       endDate = new Date();
-      // Set to 7am UTC today
       endDate.setUTCHours(7, 0, 0, 0);
     }
-
-    // Create a 30-hour window ending at 7am UTC on the specified date
     const startDate = new Date(endDate.getTime() - 30 * 60 * 60 * 1000);
-
     const db = getDb(c.env.DATABASE_URL);
-
     const allSources = await db.select({ id: $sources.id, name: $sources.name }).from($sources);
-
-    let events = await db
-      .select({
-        id: $articles.id,
-        sourceId: $articles.sourceId,
-        url: $articles.url,
-        title: $articles.title,
-        publishDate: $articles.publishDate,
-        content: $articles.content,
-        location: $articles.location,
-        completeness: $articles.completeness,
-        relevance: $articles.relevance,
-        summary: $articles.summary,
-        createdAt: $articles.createdAt,
-      })
-      .from($articles)
-      .where(
+    let events = await db.select().from($articles).where(
         and(
           isNotNull($articles.location),
           gte($articles.publishDate, startDate),
@@ -82,16 +54,7 @@ const app = new Hono<HonoEnv>()
           isNotNull($articles.summary)
         )
       );
-
-    const response = {
-      sources: allSources,
-      events,
-      dateRange: {
-        startDate: startDate.toISOString(),
-        endDate: endDate.toISOString(),
-      },
-    };
-
+    const response = { sources: allSources, events, dateRange: { startDate: startDate.toISOString(), endDate: endDate.toISOString() } };
     return c.json(response);
   })
   .get('/trigger-rss', async c => {
@@ -99,16 +62,13 @@ const app = new Hono<HonoEnv>()
     if (token !== c.env.MERIDIAN_SECRET_KEY) {
       return c.json({ error: 'Unauthorized' }, 401);
     }
-
-    // NEW: Use try/catch for direct function call, no longer using ResultAsync
     try {
-      console.log('API Trigger: Directly running ScrapeRssFeed logic...'); // <<<< NEW LOG
-      // Call the new runScrapeRssFeedLogic function directly, passing all required arguments
-      await runScrapeRssFeedLogic(c.env, c.executionCtx, { force: true }); // <<<< CHANGED CALL
-      console.log('API Trigger: ScrapeRssFeed logic finished.'); // <<<< NEW LOG
+      console.log('API Trigger: Directly running ScrapeRssFeed logic...');
+      await runScrapeRssFeedLogic(c.env, c.executionCtx, { force: true });
+      console.log('API Trigger: ScrapeRssFeed logic finished.');
       return c.json({ success: true });
     } catch (error: any) {
-      console.error('API Trigger: Error running ScrapeRssFeed logic:', error); // <<<< NEW LOG
+      console.error('API Trigger: Error running ScrapeRssFeed logic:', error);
       return c.json({ error: error.message || 'Internal Server Error' }, 500);
     }
   });

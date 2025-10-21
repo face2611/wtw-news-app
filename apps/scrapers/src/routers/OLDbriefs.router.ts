@@ -1,13 +1,12 @@
-// This is the new, correct, and self-contained code for:
-// apps/scrapers/src/routers/briefs.router.ts
+// This is the FINAL, CORRECTED code for apps/scrapers/src/routers/briefs.router.ts
 
 import { Hono } from 'hono';
 import { HonoEnv } from '../app';
 import { getDb } from '../lib/utils';
-import { desc } from 'drizzle-orm';
-import { pgTable, serial, text, date, integer, timestamp } from 'drizzle-orm/pg-core'; // <-- ADDED IMPORTS
+import { desc, sql } from 'drizzle-orm';
+import { pgTable, serial, text, date, integer, timestamp } from 'drizzle-orm/pg-core';
 
-// ADDED: Define the schema for daily_briefs locally, as it's not in the shared package.
+// THIS IS THE CORRECT, KNOWN-GOOD SCHEMA, COPIED FROM THE WORKING GENERATOR
 export const $dailyBriefs = pgTable('daily_briefs', {
     id: serial('id').primaryKey(),
     briefDate: date('brief_date').notNull().unique(),
@@ -21,16 +20,20 @@ export const $dailyBriefs = pgTable('daily_briefs', {
     usedSources: integer('used_sources'),
     modelAuthor: text('model_author'),
     clusteringParams: text('clustering_params'),
-    createdAt: timestamp('created_at', { mode: 'date' }), // Adjusted for consistency
+    createdAt: timestamp('created_at', { mode: 'date' }).default(sql`CURRENT_TIMESTAMP`),
 });
 
 const briefsRouter = new Hono<HonoEnv>()
   .get('/', async (c) => {
-    // NOTE: This is a public endpoint and does not check for an auth token.
-    // This is different from the /events endpoint.
     try {
       const db = getDb(c.env.DATABASE_URL);
-      const briefs = await db.select()
+      
+      const briefs = await db.select({
+          // We only select the fields the frontend needs, which is safer
+          id: $dailyBriefs.id,
+          briefDate: $dailyBriefs.briefDate,
+          title: $dailyBriefs.title,
+        })
         .from($dailyBriefs)
         .orderBy(desc($dailyBriefs.briefDate))
         .limit(30);
