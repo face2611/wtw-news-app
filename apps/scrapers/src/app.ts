@@ -11,9 +11,9 @@ import { runScrapeRssFeedLogic } from './logic/rssFeed.logic';
 // Imports for the /events and /briefs endpoints
 import { desc, sql, and, gte, lte, isNotNull, eq, not } from 'drizzle-orm';
 import { pgTable, serial, text, date, integer, timestamp } from 'drizzle-orm/pg-core';
-import { $sources, $articles } from '@meridian/database'; // We still need these for /events
+import { $sources, $articles } from '@meridian/database';
 
-// THIS IS THE CRITICAL FIX: Define the schema for daily_briefs LOCALLY
+// Define the schema for daily_briefs LOCALLY
 export const $dailyBriefs = pgTable('daily_briefs', {
     id: serial('id').primaryKey(),
     briefDate: date('brief_date').notNull().unique(),
@@ -36,18 +36,22 @@ const app = new Hono<HonoEnv>()
   .use(trimTrailingSlash())
   .get('/favicon.ico', async c => c.notFound())
 
-  // THIS IS THE NEW, CORRECT /briefs ENDPOINT
+  // THIS IS THE SIMPLIFIED AND CORRECTED /briefs ENDPOINT
   .get('/briefs', async (c) => {
     try {
       const db = getDb(c.env.DATABASE_URL);
+      
+      // Select the raw data from the database.
       const briefs = await db.select({
           id: $dailyBriefs.id,
-          briefDate: $dailyBriefs.briefDate,
+          briefDate: $dailyBriefs.briefDate, // This will be 'YYYY-MM-DD'
           title: $dailyBriefs.title,
         })
         .from($dailyBriefs)
         .orderBy(desc($dailyBriefs.briefDate))
         .limit(30);
+
+      // Return the data directly without transformation.
       return c.json(briefs);
     } catch (error: any) {
       console.error('Error fetching briefs:', error.message);
