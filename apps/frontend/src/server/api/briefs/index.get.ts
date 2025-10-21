@@ -1,21 +1,19 @@
-// This is the new, correct code for apps/frontend/src/server/api/briefs/index.get.ts
+// This is the FINAL, CORRECTED code for apps/frontend/src/server/api/briefs/index.get.ts
 
 export default defineEventHandler(async (event) => {
-  // Get the runtime configuration we defined in nuxt.config.ts
   const config = useRuntimeConfig();
   const apiUrl = config.public.WORKER_API;
+  const secretKey = config.MERIDIAN_SECRET_KEY; // <-- Get the secret key
 
-  if (!apiUrl) {
-    throw new Error('WORKER_API is not configured in runtimeConfig.');
+  if (!apiUrl || !secretKey) {
+    throw createError({ statusCode: 500, statusMessage: 'API URL or secret key is not configured.' });
   }
 
   try {
-    // Fetch the events/briefs from our actual worker API
-    // NOTE: The endpoint in the worker that lists reports is called '/events'
     const briefs = await $fetch(`${apiUrl}/events`, {
       headers: {
-        // If your /events endpoint requires an auth token, add it here.
-        // Assuming it's a public endpoint for now.
+        // THIS IS THE CRITICAL MISSING PIECE
+        'Authorization': `Bearer ${secretKey}`
       }
     });
     
@@ -23,9 +21,8 @@ export default defineEventHandler(async (event) => {
 
   } catch (error) {
     console.error('Failed to fetch briefs from worker API:', error);
-    // Throw an error to let Nuxt know the fetch failed
     throw createError({
-      statusCode: 502, // Bad Gateway, indicates an upstream API error
+      statusCode: 502,
       statusMessage: 'Failed to fetch briefs from the backend worker.',
     });
   }

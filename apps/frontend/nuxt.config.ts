@@ -34,6 +34,9 @@ export default defineNuxtConfig({
     public: {
       WORKER_API: process.env.NUXT_PUBLIC_WORKER_API || 'http://localhost:8787',
     },
+
+    MERIDIAN_SECRET_KEY: process.env.MERIDIAN_SECRET_KEY,
+
     DATABASE_URL: '',
     mailerlite: {
       api_key: '',
