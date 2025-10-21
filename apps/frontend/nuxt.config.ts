@@ -32,7 +32,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      WORKER_API: 'http://localhost:8787',
+      WORKER_API: process.env.NUXT_PUBLIC_WORKER_API || 'http://localhost:8787',
     },
     DATABASE_URL: '',
     mailerlite: {
