@@ -7,6 +7,7 @@ import { Hono } from 'hono';
 import { trimTrailingSlash } from 'hono/trailing-slash';
 import openGraph from './routers/openGraph.router';
 import reportsRouter from './routers/reports.router';
+import briefsRouter from './routers/briefs.router'; 
 // REMOVED: import { startRssFeedScraperWorkflow } from './workflows/rssFeed.workflow';
 // NEW: Import the refactored logic function directly
 import { runScrapeRssFeedLogic } from './logic/rssFeed.logic'; // <<<< NEW IMPORT
@@ -19,6 +20,7 @@ export type HonoEnv = { Bindings: Env };
 const app = new Hono<HonoEnv>()
   .use(trimTrailingSlash())
   .get('/favicon.ico', async c => c.notFound()) // disable favicon
+  .route('/briefs', briefsRouter)
   .route('/reports', reportsRouter)
   .route('/openGraph', openGraph)
   .get('/ping', async c => c.json({ pong: true }))

@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const briefs = await $fetch(`${apiUrl}/events`, {
+    const briefs = await $fetch(`${apiUrl}/briefs`, { 
       headers: {
         // THIS IS THE CRITICAL MISSING PIECE
         'Authorization': `Bearer ${secretKey}`
