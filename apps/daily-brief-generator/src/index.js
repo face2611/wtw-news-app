@@ -180,13 +180,16 @@ async function fetchLastReportContext(env, briefDate) {
 }
 
 // PUBLISH FINAL REPORT FUNCTION (uncommented and targeting correct endpoint with verbose logging)
-async function publishFinalReport(reportData, env) {
-    const endpoint = "https://wtw-production.philip-j-ireland.workers.dev/reports/report";
+// This is the correct version of publishFinalReport that uses the Service Binding.
 
-    console.error(`[DailyBriefGenerator] DEBUG: Attempting to publish report to URL: ${endpoint}`);
-    
+async function publishFinalReport(reportData, env) {
+    const apiService = env.REPORTS_API;
+    const fullUrl = 'https://wtw-production-api/reports/report';
+
+    console.error(`[DailyBriefGenerator] DEBUG: Attempting to publish report via 'REPORTS_API' service binding to URL: ${fullUrl}`);
+
     try {
-        const response = await fetch(endpoint, {
+        const response = await apiService.fetch(fullUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -207,7 +210,7 @@ async function publishFinalReport(reportData, env) {
         return await response.json();
 
     } catch (error) {
-        console.error(`[DailyBriefGenerator] CRITICAL ERROR: Failed to publish final report (fetch or response processing error): ${error?.message || String(error)}`);
+        console.error(`[DailyBriefGenerator] CRITICAL ERROR: Failed to publish final report (service binding fetch error): ${error?.message || String(error)}`);
         throw error;
     }
 }
@@ -697,38 +700,7 @@ export default {
                 usedSources = usedSourceDomains.size;
             }
 
-            console.error(`[DailyBriefGenerator] DEBUG: Run ID ${runId}: Saving brief for date ${currentBriefDate} with status ${briefStatus}.`);
             
-            await db.insert($dailyBriefs).values({
-                briefDate: currentBriefDate,
-                title: briefTitle,
-                content: briefContent,
-                tldr: briefTldr,
-                run_id: runId,
-                totalArticles: totalArticles,
-                totalSources: totalSources,
-                usedArticles: usedArticles,
-                usedSources: usedSources,
-                modelAuthor: briefModelUsed,
-                // clusteringParams: JSON.stringify(best_params) // Best params not available in worker
-            })
-            .onConflictDoUpdate({
-                target: $dailyBriefs.briefDate,
-                set: {
-                    title: briefTitle,
-                    content: briefContent,
-                    tldr: briefTldr,
-                    run_id: runId,
-                    totalArticles: totalArticles,
-                    totalSources: totalSources,
-                    usedArticles: usedArticles,
-                    usedSources: usedSources,
-                    modelAuthor: briefModelUsed,
-                    createdAt: new Date(),
-                },
-            });
-            console.error(`[DailyBriefGenerator] DEBUG: Run ID ${runId}: Daily brief saved successfully for date ${currentBriefDate}.`);
-
             await publishFinalReport({
                 briefDate: currentBriefDate,
                 title: briefTitle,
