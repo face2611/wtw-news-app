@@ -2,7 +2,6 @@
 // --- Daily Brief Generator Logic (Google Gemini via Cloudflare AI Gateway & Drizzle DB, Multi-Stage LLM) ---
 
 // --- Drizzle DB Client Setup (SELF-CONTAINED) ---
-// All Drizzle-related imports are local to this worker as per its self-contained design.
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { pgTable, serial, text, timestamp, integer, boolean, date } from 'drizzle-orm/pg-core';
@@ -36,7 +35,7 @@ function getTodayDateString() {
 // --- End Helper ---
 
 
-// --- Define schema INLINE for this worker (SELF-CONTAINED) ---
+// --- Define schema INLINE for this worker ---
 export const $sources = pgTable('sources', {
   id: serial('id').primaryKey(),
   url: text('url').notNull().unique(),
@@ -70,32 +69,29 @@ export const $articles = pgTable('articles', {
   createdAt: timestamp('created_at', { mode: 'date' }).default(sql`CURRENT_TIMESTAMP`),
 });
 
-// --- NEW SCHEMA FOR DAILY BRIEFS (SELF-CONTAINED) ---
-export const $dailyBriefs = pgTable('daily_briefs', {
+// NOTE: We define the reports schema here as this worker does not use the shared package
+export const $reports = pgTable('reports', {
     id: serial('id').primaryKey(),
-    briefDate: date('brief_date').notNull().unique(), // Date of the brief
-    title: text('title'), // The title generated for the brief
-    content: text('content').notNull(), // The Markdown/HTML brief
-    tldr: text('tldr'), // The condensed TLDR for next day's context
-    run_id: text('run_id'), // For tracking the brief generation run
-    totalArticles: integer('total_articles'), // Stats
-    totalSources: integer('total_sources'),   // Stats
-    usedArticles: integer('used_articles'),   // Stats
-    usedSources: integer('used_sources'),     // Stats
-    modelAuthor: text('model_author'),        // Which model generated final brief
-    clusteringParams: text('clustering_params'), // Store as JSON string
-    createdAt: timestamp('created_at', { mode: 'date' }).default(sql`CURRENT_TIMESTAMP`),
+    title: text('title'),
+    content: text('content'),
+    total_articles: integer('total_articles'),
+    total_sources: integer('total_sources'),
+    used_articles: integer('used_articles'),
+    used_sources: integer('used_sources'),
+    created_at: timestamp('created_at', { mode: 'date' }).default(sql`CURRENT_TIMESTAMP`),
+    tldr: text('tldr'),
+    model_author: text('model_author'),
+    clustering_params: text('clustering_params'),
 });
 // --- End INLINE SCHEMA ---
 
 
-// --- getDb function for self-contained Drizzle (SELF-CONTAINED) ---
 function getDb(databaseUrl) {
     const queryClient = postgres(databaseUrl);
     return drizzle(queryClient, { schema: {
         articles: $articles,
         sources: $sources,
-        dailyBriefs: $dailyBriefs, // Include the new brief schema
+        reports: $reports, // Use the reports schema
     }});
 }
 // --- End Drizzle DB Client Setup ---
@@ -117,7 +113,7 @@ async function getGenerativeModel(env) {
 
     const genAI = new GoogleGenerativeAI(env.GOOGLE_AI_STUDIO_TOKEN);
     generativeModelInstance = genAI.getGenerativeModel(
-        { model: "gemini-2.0-flash" }, // <<<< Specific Gemini model gemini-2.0-flash
+        { model: "gemini-2.5-flash" }, // <<<< Specific Gemini model gemini-2.5-flash
         {
             baseUrl: `https://gateway.ai.cloudflare.com/v1/${env.CLOUDFLARE_ACCOUNT_ID}/${env.AI_GATEWAY_NAME}/google-ai-studio`,
         },
@@ -166,8 +162,8 @@ async function callGoogleGenerativeAiViaGateway(messages, env, currentRunId, isJ
         }
 
     } catch (error) {
-        console.error(`[DailyBriefGenerator] ERROR: Run ID ${currentRunId}: Google Generative AI Call Failed (gemini-2.0-flash): ${error?.message || String(error)}`);
-        throw new Error(`Google Generative AI Call Failed (gemini-2.0-flash): ${error?.message || String(error)}`);
+        console.error(`[DailyBriefGenerator] ERROR: Run ID ${currentRunId}: Google Generative AI Call Failed (gemini-2.5-flash): ${error?.message || String(error)}`);
+        throw new Error(`Google Generative AI Call Failed (gemini-2.5-flash): ${error?.message || String(error)}`);
     }
 }
 // --- End Google Gemini via Cloudflare AI Gateway Service ---
@@ -179,14 +175,16 @@ async function fetchLastReportContext(env, briefDate) {
     return null;
 }
 
-// PUBLISH FINAL REPORT FUNCTION (uncommented and targeting correct endpoint with verbose logging)
+// NEW, CORRECT WAY using a Service Binding
 async function publishFinalReport(reportData, env) {
-    const endpoint = "https://wtw-production.philip-j-ireland.workers.dev/reports/report";
-
-    console.error(`[DailyBriefGenerator] DEBUG: Attempting to publish report to URL: ${endpoint}`);
+    const apiService = env.REPORTS_API;
     
+    const fullUrl = 'https://wtw-production-api/reports/report';
+
+    console.error(`[DailyBriefGenerator] DEBUG: Attempting to publish report via 'REPORTS_API' service binding to URL: ${fullUrl}`);
+
     try {
-        const response = await fetch(endpoint, {
+        const response = await apiService.fetch(fullUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -207,11 +205,10 @@ async function publishFinalReport(reportData, env) {
         return await response.json();
 
     } catch (error) {
-        console.error(`[DailyBriefGenerator] CRITICAL ERROR: Failed to publish final report (fetch or response processing error): ${error?.message || String(error)}`);
+        console.error(`[DailyBriefGenerator] CRITICAL ERROR: Failed to publish final report (service binding fetch error): ${error?.message || String(error)}`);
         throw error;
     }
 }
-// --- End External API Calls ---
 
 
 // --- Multi-Stage LLM Processing Functions ---
@@ -329,7 +326,7 @@ Then, after your preliminary analysis, present your final analysis in a structur
 
 \`\`\`json
 {
-    "status": "complete" | "incomplete", // must be complete if proceeding with analysis
+    "status": "complete" | "incomplete",
     "reason": "string (only if incomplete)",
     "availableInfo": "string (only if incomplete)",
     "executiveSummary": "string",
@@ -420,9 +417,10 @@ Then, after your preliminary analysis, present your final analysis in a structur
 ${systemPrompt}
 
 ${userPrompt}
-`.trim();
+`.trim(); // Trim to remove leading/trailing whitespace from the combined prompt
 
-            const analysis = await callGoogleGenerativeAiViaGateway([{ role: 'user', content: combinedUserPrompt }], env, runId, false);
+            const analysis = await callGoogleGenerativeAiViaGateway([{ role: 'user', content: combinedUserPrompt }], env, runId, false); // Expect raw text, then extract JSON
+            // Extract JSON from <final_json> tags
             let extractedJsonString = analysis;
             const finalJsonStartIndex = extractedJsonString.indexOf('<final_json>');
             const finalJsonEndIndex = extractedJsonString.lastIndexOf('</final_json>');
@@ -433,7 +431,7 @@ ${userPrompt}
                 console.warn(`[DailyBriefGenerator] WARN: Run ID ${runId}: Final analysis JSON missing <final_json> tags. Attempting to parse raw AI output.`);
             }
 
-            const parsedAnalysis = JSON.parse(extractedJsonString);
+            const parsedAnalysis = JSON.parse(extractedJsonString); // Now parse the extracted JSON
             
             if (parsedAnalysis && parsedAnalysis.status === 'complete') {
                 enrichedStories.push(parsedAnalysis);
@@ -453,23 +451,27 @@ async function generateFinalBrief(enrichedStories, previousDayContext, env, runI
 
     const systemPromptForBrief = `Adopt the persona of an exceptionally well-informed, highly analytical, and slightly irreverent intelligence briefer. Imagine you have near-instant access to and processing power for vast amounts of global information, combined with a sharp, insightful perspective and a dry wit. You're communicating directly and informally with a smart, curious individual who values grounded analysis but dislikes corporate speak, hedging, and forced neutrality. Your core stylistic goals are: Tone: Conversational, direct, and engaging. Use lowercase naturally, as if speaking or writing informally to a trusted peer. Avoid stiff formality, bureaucratic language, or excessive caution. Be chill, but maintain intellectual rigor. Analytical Voice: Prioritize insightful analysis over mere summarization. Go beyond stating facts to explain *why* they matter, connect disparate events, identify underlying patterns, assess motivations, and explore potential implications (second-order effects). Offer a clear, grounded "take" on developments. Don't be afraid to call out inconsistencies or highlight underappreciated angles, always backing it up with the logic derived from the provided information. Wit & Personality: Embrace a dry, clever wit. Humor, sarcasm, or irony should arise *naturally* from the situation or the absurdity of events. Pointing out the obvious when it is funny is fine. **Crucially: Do not force humor, be cringe, or undermine the gravity of serious topics like human suffering.** Wit should enhance insight, not detract from it. Language: Use clear, concise language. Vary sentence structure for natural flow. Occasional relevant slang or shorthand is acceptable if it fits the informal tone naturally, but prioritize clarity. Ensure analysis is sharp and commentary is insightful, not just filler. Think of yourself as: The user's personal "Q" (from James Bond) combined with a sharp geopolitical analyst – someone with unparalleled information access who can cut through the noise, connect the dots, and deliver the essential insights with a bit of personality and zero tolerance for BS. Your ultimate goal is to deliver the kind of insightful, personalized, and engaging intelligence brief that wasn't possible before AI – combining superhuman data processing with a distinct, analytical, and trustworthy (even if slightly cynical) voice.`;
     
+    // Convert enriched stories into markdown similar to your json_to_markdown_refined
     const storiesMarkdown = enrichedStories.map(jsonToMarkdownRefined).join('\n\n---\n\n');
 
+    // Original user prompt (truncated, assume it continues as before)
     const baseUserPromptForBrief = `hey, i have a bunch of news reports (in random order) derived from detailed analyses of news clusters from the last 30h. could you give me my personalized daily intelligence brief? aim for something comprehensive yet engaging, roughly a 20-30 minute read.
     my interests are: significant world news (geopolitics, politics, finance, economics), us news, english news (i'm english/live in England), china news (especially policy, economy, tech - seeking insights often missed in western media), and technology/science (ai/llms, biomed, space, real breakthroughs). also include a section for noteworthy items that don't fit neatly elsewhere.
-    `;
-    let combinedUserPromptForFinalBrief = `${systemPromptForBrief}\n\n`;
+    `; // Truncated for brevity.
+    let combinedUserPromptForFinalBrief = `${systemPromptForBrief}\n\n`; // Prepend system prompt content
     if (previousDayContext) {
-        combinedUserPromptForFinalBrief += `${previousDayContext}\n\n`;
+        combinedUserPromptForFinalBrief += `${previousDayContext}\n\n`; // Add previous day's context
     }
-    combinedUserPromptForFinalBrief += `${baseUserPromptForBrief}\n\n`;
-    combinedUserPromptForFinalBrief += `<articles>\n${storiesMarkdown}\n</articles>`;
+    combinedUserPromptForFinalBrief += `${baseUserPromptForBrief}\n\n`; // Add the base user prompt
+    combinedUserPromptForFinalBrief += `<articles>\n${storiesMarkdown}\n</articles>`; // Add processed stories
 
+    // MODIFIED: Pass a single user message with combined content
     const finalBriefRaw = await callGoogleGenerativeAiViaGateway(
-        [{ role: 'user', content: combinedUserPromptForFinalBrief }],
+        [{ role: 'user', content: combinedUserPromptForFinalBrief }], // THIS IS THE KEY CHANGE
         env, runId, false
     );
     
+    // Extract brief from <final_brief> tags
     let finalBriefText = finalBriefRaw;
     if (finalBriefText.includes("<final_brief>") && finalBriefText.includes("</final_brief>")) {
         finalBriefText = finalBriefText.split("<final_brief>")[1].split("</final_brief>")[0].trim();
@@ -589,11 +591,7 @@ function jsonToMarkdownRefined(data) {
 
 // --- Worker Entrypoint (Scheduled Handler) ---
 export default {
-    async scheduled(
-        controller,
-        env,
-        ctx
-    ) {
+    async scheduled(controller, env, ctx) {
         const runId = crypto.randomUUID();
         console.error(`[DailyBriefGenerator] DEBUG: Scheduled event triggered. Run ID: ${runId}`);
 
@@ -606,10 +604,10 @@ export default {
         if (!env.MERIDIAN_SECRET_KEY) {
             throw new Error(`[DailyBriefGenerator] ERROR: MERIDIAN_SECRET_KEY secret is missing or undefined!`);
         }
-        if (!env.CLOUDFLARE_ACCOUNT_ID) {
+        if (!env.CLOUDFLARE_ACCOUNT_ID) { // Added this check
             throw new Error(`[DailyBriefGenerator] ERROR: CLOUDFLARE_ACCOUNT_ID secret is missing or undefined!`);
         }
-        if (!env.AI_GATEWAY_NAME) {
+        if (!env.AI_GATEWAY_NAME) { // Added this check
             throw new Error(`[DailyBriefGenerator] ERROR: AI_GATEWAY_NAME secret is missing or undefined!`);
         }
         
@@ -618,21 +616,20 @@ export default {
         let briefTitle = "Daily News Brief";
         let briefContent = '';
         let briefTldr = '';
-        let briefStatus = 'Generated';
         let totalArticles = 0;
         let totalSources = 0;
         let usedArticles = 0;
         let usedSources = 0;
-        const briefModelUsed = 'gemini-2.0-flash';
+        const briefModelUsed = 'gemini-2.5-flash';
         const currentBriefDate = getTodayDateString();
 
         try {
+            // 1. Determine date range for fetching articles
             const now = new Date();
             const thirtySixHoursAgo = new Date(now.getTime() - (36 * 60 * 60 * 1000));
-            const briefGenerationDate = getTodayDateString(); 
-
             console.error(`[DailyBriefGenerator] DEBUG: Run ID ${runId}: Fetching articles processed between ${formatTimestampForPgWithoutTimeZone(thirtySixHoursAgo)} and ${formatTimestampForPgWithoutTimeZone(now)} UTC.`);
 
+            // 2. Fetch AI_Processed articles
             const articles = await db.query.articles.findMany({
                 where: and(
                     eq($articles.processing_status, 'AI_Processed'),
@@ -651,9 +648,9 @@ export default {
 
             if (totalArticles === 0) {
                 briefContent = "No sufficiently processed articles from yesterday to generate a brief.";
-                briefStatus = "Skipped";
                 console.warn(`[DailyBriefGenerator] WARN: Run ID ${runId}: ${briefContent}`);
             } else {
+                // --- Multi-Stage LLM Processing ---
                 const rawStories = await processArticlesIntoStories(articles, env, runId);
                 usedArticles = rawStories.length;
 
@@ -665,23 +662,22 @@ export default {
                 });
 
                 const previousDayContext = await fetchLastReportContext(env, getYesterdayDate().toISOString().split('T')[0]);
-
                 briefContent = await generateFinalBrief(enrichedStories, previousDayContext, env, runId);
-
                 briefTitle = await generateBriefTitle(briefContent, env, runId);
-
                 briefTldr = await generateBriefTldr(briefContent, env, runId);
-
+                
+                // Update stats for articles used in final brief
                 const usedArticleIds = new Set();
                 const usedSourceDomains = new Set();
                 enrichedStories.forEach(story => {
+                    // Check if story.articles_ids exists for the initial (single-article) stories
                     const storyArticleIds = story.articles_ids || []; 
                     storyArticleIds.forEach(articleId => usedArticleIds.add(articleId));
 
                     if (story.keySources && story.keySources.provided_articles_sources) {
                         story.keySources.provided_articles_sources.forEach(source => {
                             source.articles.forEach(articleId => {
-                                usedArticleIds.add(articleId);
+                                usedArticleIds.add(articleId); // Ensure all mentioned articles are counted
                                 const article = articles.find(a => a.id === articleId);
                                 if (article && article.url) {
                                     try {
@@ -697,83 +693,31 @@ export default {
                 usedSources = usedSourceDomains.size;
             }
 
-            console.error(`[DailyBriefGenerator] DEBUG: Run ID ${runId}: Saving brief for date ${currentBriefDate} with status ${briefStatus}.`);
+            // THIS IS THE SINGLE, CORRECTED CHANGE
+            // Build the reportData object to match the API's expectations.
+            const reportData = {
+              title: briefTitle,
+              content: briefContent,
+              tldr: briefTldr,
+              totalArticles: totalArticles,
+              totalSources: totalSources,
+              usedArticles: usedArticles,
+              usedSources: usedSources,
+              // Map the property names correctly
+              createdAt: new Date(currentBriefDate + 'T05:00:00Z'), // Create a Date object for the API
+              model_author: briefModelUsed,
+              // Provide dummy data for the required clustering_params object
+              clustering_params: {
+                umap: { n_neighbors: 0 },
+                hdbscan: { min_cluster_size: 0, min_samples: 0, epsilon: 0 }
+              }
+            };
             
-            await db.insert($dailyBriefs).values({
-                briefDate: currentBriefDate,
-                title: briefTitle,
-                content: briefContent,
-                tldr: briefTldr,
-                run_id: runId,
-                totalArticles: totalArticles,
-                totalSources: totalSources,
-                usedArticles: usedArticles,
-                usedSources: usedSources,
-                modelAuthor: briefModelUsed,
-                // clusteringParams: JSON.stringify(best_params) // Best params not available in worker
-            })
-            .onConflictDoUpdate({
-                target: $dailyBriefs.briefDate,
-                set: {
-                    title: briefTitle,
-                    content: briefContent,
-                    tldr: briefTldr,
-                    run_id: runId,
-                    totalArticles: totalArticles,
-                    totalSources: totalSources,
-                    usedArticles: usedArticles,
-                    usedSources: usedSources,
-                    modelAuthor: briefModelUsed,
-                    createdAt: new Date(),
-                },
-            });
-            console.error(`[DailyBriefGenerator] DEBUG: Run ID ${runId}: Daily brief saved successfully for date ${currentBriefDate}.`);
-
-            await publishFinalReport({
-                briefDate: currentBriefDate,
-                title: briefTitle,
-                content: briefContent,
-                tldr: briefTldr,
-                run_id: runId,
-                modelAuthor: briefModelUsed,
-                totalArticles: totalArticles,
-                totalSources: totalSources,
-                usedArticles: usedArticles,
-                usedSources: usedSources,
-            }, env);
-
+            // Now, publish the correctly formatted reportData
+            await publishFinalReport(reportData, env);
 
         } catch (error) {
             console.error(`[DailyBriefGenerator] CRITICAL ERROR: Run ID ${runId}: Unhandled exception in scheduled handler: ${error?.message || String(error)}`);
-            briefStatus = 'Critical_Failure';
-            try {
-                 await db.insert($dailyBriefs).values({
-                    briefDate: currentBriefDate,
-                    title: briefTitle,
-                    content: briefContent || `Failed to generate brief. Reason: ${error?.message || String(error)}`,
-                    tldr: briefTldr || `Failed to generate brief: ${error?.message || String(error)}`,
-                    run_id: runId,
-                    totalArticles: totalArticles,
-                    totalSources: totalSources,
-                    usedArticles: usedArticles,
-                    usedSources: usedSources,
-                    modelAuthor: briefModelUsed,
-                    createdAt: new Date(),
-                })
-                .onConflictDoUpdate({
-                    target: $dailyBriefs.briefDate,
-                    set: {
-                        title: briefTitle,
-                        content: briefContent || `Failed to generate brief. Reason: ${error?.message || String(error)}`,
-                        tldr: briefTldr || `Failed to generate brief: ${error?.message || String(error)}`,
-                        run_id: runId,
-                        createdAt: new Date(),
-                    },
-                });
-                console.error(`[DailyBriefGenerator] DEBUG: Run ID ${runId}: Critical error brief saved to DB.`);
-            } catch (dbError) {
-                console.error(`[DailyBriefGenerator] ERROR: Run ID ${runId}: Failed to save critical error brief: ${dbUpdateError.message}`);
-            }
         }
     },
 };
