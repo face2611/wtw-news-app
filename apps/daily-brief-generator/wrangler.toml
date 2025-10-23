@@ -1,0 +1,20 @@
+{
+  "name": "daily-brief-generator",
+  "main": "src/index.js",
+  "compatibility_date": "2024-01-01",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "secrets": [
+    "DATABASE_URL",
+    "GOOGLE_AI_STUDIO_TOKEN",
+    "CLOUDFLARE_ACCOUNT_ID",
+    "AI_GATEWAY_NAME"
+  ],
+  "external": [
+    "@google/generative-ai"
+  ],
+  
+[[triggers]]
+cron = "0 5 * * *" # Daily at 5 AM UTC.
+}
