@@ -1,18 +1,22 @@
-# This is the proven-working wrangler.toml for the daily-brief-generator
+# This is the final, complete, and correct wrangler.toml for the daily-brief-generator
 
 name = "daily-brief-generator"
 main = "src/index.js"
 compatibility_date = "2024-01-01"
 compatibility_flags = [ "nodejs_compat" ]
 
+# Defines the cron trigger for 5 AM UTC daily.
 [triggers]
 crons = [ "0 5 * * *" ]
 
+# Defines the crucial service binding to the API worker.
 [[services]]
 binding = "REPORTS_API"
 service = "wtw-production-api"
 
-# This is the critical section that allows the postgres-js driver to work
+# THIS IS THE CRITICAL MISSING PIECE
+# Tells the bundler to not include these packages in the final script,
+# which prevents the instant crash.
 [build]
 external = [
     "drizzle-orm/postgres-js",
