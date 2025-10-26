@@ -1,0 +1,10 @@
+name = "gemini-processor-worker"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+external = ["@google/generative-ai"]
+
+[[queues.consumers]]
+queue = "article-gemini-process-queue"
+binding = "ARTICLE_GEMINI_PROCESS_QUEUE"

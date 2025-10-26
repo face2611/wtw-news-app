@@ -1,0 +1,30 @@
+# C:\Users\phili\meridian\apps\gemini-processor-worker\wrangler.toml
+name = "gemini-processor-worker"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+compatibility_flags = [
+  "nodejs_compat"
+]
+
+# --- CRITICAL FIX: Externalize Node dependencies to resolve Rollup errors ---
+[build]
+external = [
+  "postgres",
+  "drizzle-orm",
+  "drizzle-orm/postgres-js",
+  "drizzle-orm/pg-core",
+  "@google/generative-ai",
+]
+
+[[queues.consumers]]
+queue = "article-gemini-process-queue"
+
+# Secrets section (We rely on wrangler to find the secrets bound via the dashboard)
+# We don't define them here, but list the names expected by the worker logic.
+# These will be bound via the Cloudflare dashboard or 'wrangler secret put'.
+# GOOGLE_API_KEY
+# GOOGLE_BASE_URL
+# DATABASE_URL (Implicitly needed for Drizzle)
+# GOOGLE_AI_STUDIO_TOKEN (Needed for AI Gateway)
+# CLOUDFLARE_ACCOUNT_ID (Needed for AI Gateway)
+# AI_GATEWAY_NAME (Needed for AI Gateway)
