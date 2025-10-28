@@ -1,31 +1,40 @@
-// This is the stable version of index.get.ts that produces the "three commas" screen.
-// It calls the working /events endpoint and includes the necessary authorization token.
+// C:\Users\phili\meridian\apps\frontend\src\server/api/briefs/index.get.ts
+// --- FINAL FIX: Targets the correct /briefs/last-report endpoint without Authorization header ---
 
-export default defineEventHandler(async (event) => {
+import { defineEventHandler, createError, useRuntimeConfig } from 'h3';
+
+export default defineEventHandler(async () => {
+  // @ts-ignore
   const config = useRuntimeConfig();
-  const apiUrl = config.public.WORKER_API;
-  const secretKey = config.MERIDIAN_SECRET_KEY;
+  
+  const apiUrl = config.public.WORKER_API; 
 
-  if (!apiUrl || !secretKey) {
-    throw createError({ statusCode: 500, statusMessage: 'API URL or secret key is not configured.' });
+  // CRITICAL FIX: Ensure explicit check and early exit for API URL
+  if (!apiUrl || typeof apiUrl !== 'string') {
+    throw createError({ statusCode: 500, statusMessage: 'API URL is not configured.' });
   }
 
+  // Target the correct /briefs/last-report endpoint
+  const url = `${apiUrl}/briefs/last-report`; 
+
   try {
-    const responseData = await $fetch(`${apiUrl}/events`, {
-      headers: {
-        'Authorization': `Bearer ${secretKey}`
-      }
+    const responseData = await $fetch(url, {
+      method: 'GET',
+      // The Authorization header is removed as it's not needed for a public GET
     });
     
+    // The response is expected to be { report: ... }
     return responseData;
 
   } catch (error) {
-    // This is the corrected error logging you found
-    console.error('Failed to fetch from /events endpoint:', error);
+    console.error('Failed to fetch from /briefs/last-report endpoint:', error);
     
+    const e = error as any; 
+    const errorBody = e.data || e.message || 'Unknown error';
+
     throw createError({
       statusCode: 502,
-      statusMessage: 'Failed to fetch data from the backend worker.',
+      statusMessage: `Failed to fetch data from the backend worker. Detail: ${errorBody}`,
     });
   }
 });
