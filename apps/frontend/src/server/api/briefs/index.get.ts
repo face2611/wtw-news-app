@@ -1,10 +1,11 @@
 // C:\Users\phili\meridian\apps\frontend\src\server/api/briefs/index.get.ts
 // --- FINAL FIX: Targets the correct /briefs/last-report endpoint without Authorization header ---
 
-import { defineEventHandler, createError, useRuntimeConfig } from 'h3';
+import { defineEventHandler, createError } from 'h3'; // Correct h3 imports
+import { useRuntimeConfig } from '#imports'; // CRITICAL FIX: Correct Nuxt import path
 
 export default defineEventHandler(async () => {
-  // @ts-ignore
+  // @ts-ignore // Necessary due to persistent local type resolution issues
   const config = useRuntimeConfig();
   
   const apiUrl = config.public.WORKER_API; 
